@@ -1,0 +1,12 @@
+{
+  "name": "purescript-wai",
+  "version": "0.0.0",
+  "description": "WAI - Web Application Interface",
+  "license": "MIT",
+  "devDependencies": {
+    "bower": "^1.4.1"
+  },
+  "dependencies": {
+    "pulp": "^3.2.2"
+  }
+}
