@@ -8,8 +8,9 @@ module Network.Wai
     ) where
 
 import Network.Wai.Internal
+import Data.Function
 import Data.Maybe
-import Utils
+
 
 type Application e = Request e -> ResponseCallback e -> Wai e ResponseReceived
 
@@ -25,4 +26,17 @@ readHeader = readMap
 readQueryItem :: String -> QueryString -> Maybe String
 readQueryItem = readMap
 
+foreign import readMapImpl """
+function readMapImpl(Just, Nothing, key, map) {
+    key = key.toLowerCase();
+
+    if(key in map) {
+        return new Just(map[key]);
+    }
+    return Nothing;
+}
+""" :: forall m a. Fn4 (a -> Maybe a) (Maybe a) String m (Maybe a)
+
+readMap :: forall m a. String -> m -> Maybe a
+readMap = runFn4 readMapImpl (Just) Nothing
 
