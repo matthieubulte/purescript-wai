@@ -35,7 +35,7 @@ type Request e = { method         :: Verb
 
 type ResponseHeaders = [Header]
 
-data Response e = ResponseString Number ResponseHeaders String
-                | ResponseStream Number ResponseHeaders (StreamingBody e)
+data Response e = ResponseString StatusCode ResponseHeaders String
+                | ResponseStream StatusCode ResponseHeaders (StreamingBody e)
 
 type StreamingBody e = (String -> Wai e Unit) -> Wai e Unit -> Wai e Unit

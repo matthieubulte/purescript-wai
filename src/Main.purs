@@ -3,6 +3,7 @@ module Main where
 import Debug.Trace
 import Control.Monad.Eff
 import Control.Monad.Aff
+import Control.Monad.Aff.AVar
 import Network.Wai
 import Network.Wai.Internal
 import Network.HTTP
@@ -12,32 +13,34 @@ import Network.Wai.Handler.Swai
 body :: forall e. Request e -> Wai e String
 body request = go ""
     where
-        go s = do
-            ns <- request.body
-            case ns of
-                 Just s' -> go (s ++ s')
-                 Nothing -> return s
+        go message = do
+            maybeRest <- request.body
+            case maybeRest of
+                 Just rest -> go (message ++ rest)
+                 Nothing -> return message
 
-foreign import log """
-function log(x) { return function() { console.log(x); } };
-""" :: forall e a. a -> Eff (trace :: Trace | e) Unit
 
-stringApplication :: forall e. Application (trace :: Trace | e)
-stringApplication request respond = do
-    liftEff' $ log request
+echoApplication :: forall e. Application e
+echoApplication request respond = do
+    message <- body request
+    respond $ ResponseString status200 [] message
 
-    message <- case request.method of
-                    POST -> body request
-                    _    -> return $ "Not a Post"
 
-    respond $ ResponseString 200
-                             [contentType "text/plain", customString "x-my-header" "test"]
-                             ("Echo: " ++ message)
+countApplication :: forall e. AVar Number -> Application (trace :: Trace | e)
+countApplication count request respond = do
+    c <- takeVar count
+    putVar count (c + 1)
+
+    let message = "Request n°" ++ (show c)
+
+    liftEff' $ trace message
+    respond $ ResponseString status200 [] (show c)
+
 
 main :: forall e. WaiEff (trace :: Trace | e)
 main = do
     trace "running purescript-wai on port 3001..."
-    run 3001 stringApplication
+    run 3001 echoApplication
 
 
 

@@ -9,7 +9,7 @@ import Network.Wai.Handler.Swai.Types
 
 makeResponseCallback :: forall e. NodeResponse -> ResponseCallback e
 makeResponseCallback response (ResponseString status headers body) = do
-    liftEff' $ runFn4 respondString response status (headerToH <$> headers) body
+    liftEff' $ runFn4 respondString response (status2Number status) (headerToH <$> headers) body
     return ResponseReceived
 
 data H = H String String
