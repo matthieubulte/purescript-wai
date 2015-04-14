@@ -33,13 +33,6 @@ main :: forall e. WaiEff (trace :: Trace | e)
 
 ## Module Utils
 
-#### `stringify`
-
-``` purescript
-stringify :: forall a. a -> String
-```
-
-
 #### `readMapImpl`
 
 ``` purescript
@@ -81,6 +74,7 @@ makeRequest :: forall e. NodeRequest -> Wai e (Request e)
 ```
 
 
+
 ## Module Network.Wai.Handler.Swai.Response
 
 #### `makeResponseCallback`
@@ -88,6 +82,7 @@ makeRequest :: forall e. NodeRequest -> Wai e (Request e)
 ``` purescript
 makeResponseCallback :: forall e. NodeResponse -> ResponseCallback e
 ```
+
 
 
 ## Module Network.Wai.Handler.Swai.Types
