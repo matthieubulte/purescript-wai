@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "purescript-maybe": "~0.2.2",
-    "purescript-http": "https://github.com/matthieubulte/purescript-http.git#~0.3.0",
+    "purescript-http": "~0.3.0",
     "purescript-arrays": "~0.3.7",
     "purescript-aff": "~0.9.1"
   }
