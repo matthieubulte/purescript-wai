@@ -1,5 +1,6 @@
 module Main where
 
+import Data.Maybe
 import Debug.Trace
 import Control.Monad.Eff
 import Control.Monad.Aff
@@ -7,7 +8,6 @@ import Control.Monad.Aff.AVar
 import Network.Wai
 import Network.Wai.Internal
 import Network.HTTP
-import Data.Maybe
 import Network.Wai.Handler.Swai
 
 body :: forall e. Request e -> Wai e String

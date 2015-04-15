@@ -2,6 +2,9 @@ module Network.Wai.Handler.Swai (run) where
 
 import Data.Function
 import Control.Monad.Aff
+import Control.Monad.Eff.Exception
+import Control.Monad.Error.Class
+import Network.HTTP
 import Network.Wai.Internal
 import Network.Wai
 import Network.Wai.Handler.Swai.Types
@@ -16,8 +19,19 @@ data P = P NodeRequest NodeResponse
 run :: forall e. Number -> Application e -> WaiEff e
 run port application = launchAff $ do
     P request response <- serve port
-    request' <- makeRequest request
-    application request' (makeResponseCallback response) -- todo here we want to catch errors and repond 500
+
+    let respond = makeResponseCallback response
+    catchError (handleRequest request respond) (handleError respond)
+
+    where
+        handleRequest request respond = do
+            request' <- makeRequest request
+            application request' respond
+
+        handleError respond error = respond $ case message error of
+                                                   "InvalidMethod" -> ResponseString status400 [] ""
+                                                   _               -> ResponseString status500 [] ""
+
 
 -- Effect forking each new request into a new Aff thread
 serve :: forall e. Number -> Wai e P

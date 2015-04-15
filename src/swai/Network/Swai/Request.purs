@@ -4,6 +4,8 @@ import Data.Function
 import Data.Maybe
 import Control.Monad.Aff
 import Control.Monad.Aff.AVar
+import Control.Monad.Eff.Exception
+import Control.Monad.Error.Class
 import Network.HTTP
 import Network.Wai.Internal
 import Network.Wai
@@ -14,27 +16,26 @@ makeRequest request = do
     queue <- makeVar
     forkAff $ onData request queue
 
-    let method = case (string2Verb $ nodeRequestMethod request) of
-                    (Just m) -> m
-                    Nothing  -> GET -- TODO: proper error handling here
+    case (string2Verb $ nodeRequestMethod request) of
+         Nothing  -> throwError invalidMethod
+         (Just method) -> return { method         : method
+                                 , rawPathInfo    : nodeRequestRawPathInfo request
+                                 , rawQueryString : nodeRequestRawQueryString request
+                                 , pathInfo       : nodeRequestPathInfo request
+                                 , queryString    : nodeRequestQueryString request
+                                 , headers        : nodeRequestHeaders request
+                                 , body           : takeVar queue
+                                 }
 
-    return { method         : method
-           , rawPathInfo    : nodeRequestRawPathInfo request
-           , rawQueryString : nodeRequestRawQueryString request
-           , pathInfo       : nodeRequestPathInfo request
-           , queryString    : nodeRequestQueryString request
-           , headers        : nodeRequestHeaders request
-           , body           : takeVar queue
-           }
 
 onData :: forall e. NodeRequest -> AVar (Maybe String) -> Wai e Unit
 onData request queue = _onData >>= (putVar queue)
     where
         _onData :: Wai e (Maybe String)
-        _onData = makeAff $ \_ success -> runFn4 onData' Just Nothing request success -- TODO: implement error handling
+        _onData = makeAff $ \failure success -> runFn5 onData' Just Nothing request failure success
 
 foreign import onData' """
-function onData$prime(Just, Nothing, request, success) {
+function onData$prime(Just, Nothing, request, failure, success) {
     return function() {
         request.on('data', function(data) {
             success(new Just(data))();
@@ -43,8 +44,12 @@ function onData$prime(Just, Nothing, request, success) {
         request.on('end', function() {
             success(Nothing)();
         });
+
+        request.on('error', function(e) {
+            failure(e)();
+        });
     };
-}""" :: forall e. Fn4 (String -> Maybe String) (Maybe String) NodeRequest (Maybe String -> WaiEff e) (WaiEff e)
+}""" :: forall e. Fn5 (String -> Maybe String) (Maybe String) NodeRequest (Error -> WaiEff e) (Maybe String -> WaiEff e) (WaiEff e)
 
 foreign import nodeRequestMethod """
 function nodeRequestMethod(request) {

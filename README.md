@@ -9,9 +9,7 @@ Two projects are in this repository at the moment (later it will be split):
 
 ### ToDo
 + Document
-+ Add Examples
 + Implement missing response types
-+ Add better error handling
 
 ### Examples
 #### Echo Server
