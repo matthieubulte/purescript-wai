@@ -1,6 +1,7 @@
 module Network.Wai.Handler.Swai (run) where
 
 import Data.Function
+import Data.Maybe
 import Control.Monad.Aff
 import Control.Monad.Eff.Exception
 import Control.Monad.Error.Class
@@ -28,9 +29,9 @@ run port application = launchAff $ do
             request' <- makeRequest request
             application request' respond
 
-        handleError respond error = respond $ case message error of
-                                                   "InvalidMethod" -> ResponseString status400 [] ""
-                                                   _               -> ResponseString status500 [] ""
+        handleError respond error = respond $ case (string2Error $ message error) of
+                                                   (Just InvalidMethod) -> ResponseString status400 [] ""
+                                                   Nothing              -> ResponseString status500 [] ""
 
 
 -- Effect forking each new request into a new Aff thread

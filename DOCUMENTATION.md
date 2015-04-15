@@ -92,6 +92,13 @@ invalidMethod :: Error
 ```
 
 
+#### `string2Error`
+
+``` purescript
+string2Error :: String -> Maybe SwaiError
+```
+
+
 #### `showSwaiError`
 
 ``` purescript
