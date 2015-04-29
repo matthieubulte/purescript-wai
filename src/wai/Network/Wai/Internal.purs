@@ -37,5 +37,6 @@ type ResponseHeaders = [Header]
 
 data Response e = ResponseString StatusCode ResponseHeaders String
                 | ResponseStream StatusCode ResponseHeaders (StreamingBody e)
+                | ResponseFile StatusCode ResponseHeaders String
 
 type StreamingBody e = (String -> Wai e Unit) -> Wai e Unit -> Wai e Unit

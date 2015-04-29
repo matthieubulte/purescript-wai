@@ -19,6 +19,8 @@ body request = go ""
                  Just rest -> go (message ++ rest)
                  Nothing -> return message
 
+file :: forall e. Application e
+file request respond = respond $ ResponseFile status200 [contentType "text/html"] "./src/index.html"
 
 echoApplication :: forall e. Application e
 echoApplication request respond = do
@@ -40,7 +42,7 @@ countApplication count request respond = do
 main :: forall e. WaiEff (trace :: Trace | e)
 main = do
     trace "running purescript-wai on port 3001..."
-    run 3001 echoApplication
+    run 3001 file
 
 
 

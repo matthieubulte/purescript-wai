@@ -12,7 +12,7 @@ import Network.Wai.Handler.Swai.Types
 import Network.Wai.Handler.Swai.Request
 import Network.Wai.Handler.Swai.Response
 
-foreign import url "var url = require('url');" :: Unit
+foreign import url  "var url  = require('url'); " :: Unit
 foreign import http "var http = require('http');" :: Unit
 
 data P = P NodeRequest NodeResponse

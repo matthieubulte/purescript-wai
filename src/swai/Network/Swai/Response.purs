@@ -7,9 +7,16 @@ import Network.Wai.Internal
 import Network.Wai
 import Network.Wai.Handler.Swai.Types
 
+foreign import fs "var fs = require('fs');" :: Unit
+
 makeResponseCallback :: forall e. NodeResponse -> ResponseCallback e
+
 makeResponseCallback response (ResponseString status headers body) = do
     liftEff' $ runFn4 respondString response (status2Number status) (headerToH <$> headers) body
+    return ResponseReceived
+
+makeResponseCallback response (ResponseFile status headers filename) = do
+    liftEff' $ runFn4 respondFile response (status2Number status) (headerToH <$> headers) filename
     return ResponseReceived
 
 data H = H String String
@@ -28,3 +35,16 @@ function respondString(response, status, headers, body) {
     };
 }""" :: forall e. Fn4 NodeResponse Number [H] String (WaiEff e)
 
+foreign import respondFile """
+function respondFile(response, status, header, filepath) {
+    return function() {
+        fs.readFile(filepath, function(error, content) {
+            if(error) {
+                response.writeHead(404);
+                response.end();
+            } else {
+                response.end(content);
+            }
+        });
+    };
+}""" :: forall e. Fn4 NodeResponse Number [H] String (WaiEff e)
