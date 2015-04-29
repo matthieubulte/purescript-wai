@@ -72,7 +72,7 @@ function nodeRequestQueryString(request) {
 
 foreign import nodeRequestRawPathInfo """
 function nodeRequestRawPathInfo(request) {
-    return request.parsedUrl.pathinfo;
+    return request.parsedUrl.path;
 }
 """ :: NodeRequest -> String
 
