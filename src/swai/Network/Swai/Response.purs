@@ -41,7 +41,7 @@ function respondFile(response, status, header, filepath) {
         fs.readFile(filepath, function(error, content) {
             if(error) {
                 response.writeHead(404);
-                response.end();
+                response.end("404 - Not Found");
             } else {
                 response.end(content);
             }
