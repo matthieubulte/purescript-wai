@@ -43,6 +43,10 @@ function respondFile(response, status, header, filepath) {
                 response.writeHead(404);
                 response.end("404 - Not Found");
             } else {
+                response.statusCode = status;
+                headers.forEach(function(header) {
+                    response.setHeader(header.value0, header.value1);
+                });
                 response.end(content);
             }
         });
