@@ -31,9 +31,9 @@ body :: forall e. Request e -> Wai e String
 body request = go ""
     where
         go message = do
-            maybeRest <- request.body
+            rest <- request.body
             case maybeRest of
-                 Just rest -> go (message ++ rest)
+                 Just rest' -> go (message ++ rest')
                  Nothing -> return message
 
 
