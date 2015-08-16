@@ -32,7 +32,7 @@ body request = go ""
     where
         go message = do
             rest <- request.body
-            case maybeRest of
+            case rest of
                  Just rest' -> go (message ++ rest')
                  Nothing -> return message
 
